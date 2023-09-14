@@ -1,0 +1,3 @@
+SCADDIR=../DRG_168/scad
+STLDIR=../DRG_168/stl
+COMMAND="c:\Program Files\OpenSCAD\openscad.exe" --enable=manifold --enable=lazy-union --export-format binstl -o STLFILE SCADFILE
