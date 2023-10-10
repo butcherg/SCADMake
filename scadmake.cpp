@@ -362,6 +362,12 @@ void age_diff(int argc, char **argv)
 	std::string hilight, norm;
 	hilight = "\033[1;31m";
 	norm = "\033[0m";
+	
+	if (argc < 4) {
+		std::cout << "Error: insufficient arguments." << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	
 	std::filesystem::path a(argv[2]);
 	std::string ap = a.parent_path().string();  //first wildcard path
 	
@@ -393,6 +399,20 @@ void age_diff(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	if (argc >= 2) { 
+		if (std::string(argv[1]) == "-h") {
+			std::cout << "Usage: scadmake [-m|-M|-a path1 path2]" << std::endl;
+			std::cout << "\t" << "-m: monitor mode, read SCADMakefile and monitor for target changes, Ctrl-c to exit" << std::endl;
+			std::cout << "\t" << "-M: generate Makefile for unix make" << std::endl;
+			std::cout << "\t" << "-a: age diff equivalent files in two directories" << std::endl;
+			std::cout << "\t" << "No switch: read SCADMakefile and make old targets" << std::endl;
+			return EXIT_SUCCESS;
+		}
+		else if (std::string(argv[1]) == "-a") {
+			age_diff(argc, argv);
+			return EXIT_SUCCESS;
+		}
+	}
 	
 	//set up the ctrl-c signal handler
 	if (signal(SIGINT, signal_function) == SIG_ERR) { //register Ctrl-C handler
@@ -433,14 +453,7 @@ int main(int argc, char **argv)
 	
 	
 	if (argc >= 2) { 
-		if (std::string(argv[1]) == "-h") {
-			std::cout << "Usage: scadmake [-m|-M|-a path1 path2]" << std::endl;
-			std::cout << "\t" << "-m: monitor mode, read SCADMakefile and monitor for target changes, Ctrl-c to exit" << std::endl;
-			std::cout << "\t" << "-M: generate Makefile for unix make" << std::endl;
-			std::cout << "\t" << "-a: age diff equivalent files in two directories" << std::endl;
-			std::cout << "\t" << "No switch: read SCADMakefile and make old targets" << std::endl;
-		}
-		else if (std::string(argv[1]) == "-m") {
+		if (std::string(argv[1]) == "-m") {
 			std::cout << "SCAD directory: " << env["SCADDIR"] << std::endl;
 			std::cout << "Monitoring for build changes..." << std::endl;
 			scad_monitor();
@@ -448,9 +461,7 @@ int main(int argc, char **argv)
 		else if (std::string(argv[1]) == "-M") {
 			scad_makefile();
 		}
-		else if (std::string(argv[1]) == "-a") {
-			age_diff(argc, argv);
-		}
+		
 	}
 	else {
 		std::cout << "SCAD directory: " << env["SCADDIR"] << std::endl;
