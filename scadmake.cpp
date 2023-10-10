@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #ifndef WIN32
 #include <unistd.h>
+#include <linux/limits.h>
 #endif
 
 #ifdef WIN32
