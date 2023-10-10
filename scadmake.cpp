@@ -4,14 +4,17 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #include <linux/limits.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
+#include <windows.h>
 #define stat _stat
-#derine popen _popen
+#define popen _popen
+#define pclose _pclose
+//#define sleep _sleep
 #endif
 
 
@@ -310,8 +313,12 @@ void scad_monitor()
 			}
 			std::cout << std::endl << "back to file monitoring..." << std::endl << std::endl;
 		}
-			
+		
+#ifdef _WIN32
+		Sleep(2000);
+#else
 		sleep(2);
+#endif
 	}
 }
 
@@ -426,7 +433,14 @@ int main(int argc, char **argv)
 	
 	
 	if (argc >= 2) { 
-		if (std::string(argv[1]) == "-m") {
+		if (std::string(argv[1]) == "-h") {
+			std::cout << "Usage: scadmake [-m|-M|-a path1 path2]" << std::endl;
+			std::cout << "\t" << "-m: monitor mode, read SCADMakefile and monitor for target changes, Ctrl-c to exit" << std::endl;
+			std::cout << "\t" << "-M: generate Makefile for unix make" << std::endl;
+			std::cout << "\t" << "-a: age diff equivalent files in two directories" << std::endl;
+			std::cout << "\t" << "No switch: read SCADMakefile and make old targets" << std::endl;
+		}
+		else if (std::string(argv[1]) == "-m") {
 			std::cout << "SCAD directory: " << env["SCADDIR"] << std::endl;
 			std::cout << "Monitoring for build changes..." << std::endl;
 			scad_monitor();
