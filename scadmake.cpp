@@ -232,6 +232,27 @@ uniquevector<filerec> build_files()
 	return b;
 }
 
+void print_allthestuff(std::map<std::string, std::vector<std::filesystem::path>> s)
+{
+	for (std::map<std::string, std::vector<std::filesystem::path>>::iterator st= s.begin(); st != s.end(); ++ st) {
+		std::cout << st->first << ":" <<std::endl;
+		for (std::vector<std::filesystem::path>::iterator vt = (st->second).begin(); vt != (st->second).end(); ++vt) {
+			std::cout << "\t" << (*vt).string() << std::endl;
+		}
+	}
+}
+
+std::map<std::string, std::vector<std::filesystem::path>> collect_files(int argc, char **argv)
+{
+	std::map<std::string, std::vector<std::filesystem::path>> files;
+	for (int i=1; i<argc; i++) {
+		std::filesystem::path p(std::string(argv[i]));
+		if (std::filesystem::exists(p)) 
+			files[p.parent_path().string()].push_back(p);
+	}	
+	return files;
+}
+
 void print_files(uniquevector<std::string> f)
 {
 	for (uniquevector<std::string>::iterator it = f.begin(); it != f.end(); ++it)
@@ -328,6 +349,40 @@ void scad_makefile()
 	}
 }
 
+void age_diff(int argc, char **argv)
+{
+	std::string hilight, norm;
+	hilight = "\033[1;31m";
+	norm = "\033[0m";
+	std::filesystem::path a(argv[2]);
+	std::string ap = a.parent_path().string();  //first wildcard path
+	
+	std::filesystem::path b(argv[argc-1]);
+	std::string bp = b.parent_path().string();  //second wildcard path
+	std::string bx = b.extension().string();  //second wildcard extension
+
+	std::map<std::string, std::vector<std::filesystem::path>> files = collect_files(argc, argv);
+	
+	for (std::vector<std::filesystem::path>::iterator it = files[ap].begin(); it != files[ap].end(); ++it) {
+		time_t f1 = get_modtime((*it).string());
+		std::string f1name = (*it).filename().string();
+		
+		time_t f2 = 0;
+		std::string f2name = "";
+		for (std::vector<std::filesystem::path>::iterator jt = files[bp].begin(); jt != files[bp].end(); ++jt) {
+			if ((*jt).stem() == (*it).stem()) {
+				f2 = get_modtime((*jt).string());
+				f2name = (*jt).filename().string();
+				break;
+			}
+		}
+		if (f1 > f2)
+			std::cout << hilight << f1name << norm << "\t" << f2name << std::endl;
+		else
+			std::cout << f1name << "\t" << hilight << f2name << norm << std::endl;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	
@@ -377,6 +432,9 @@ int main(int argc, char **argv)
 		}
 		else if (std::string(argv[1]) == "-M") {
 			scad_makefile();
+		}
+		else if (std::string(argv[1]) == "-a") {
+			age_diff(argc, argv);
 		}
 	}
 	else {
