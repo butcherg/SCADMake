@@ -9,6 +9,8 @@ It also will run in a "monitor" mode, -m in the scadmake invocation will set the
 
 If you'd rather use a unix make, scadmake will generate a Makefile with the -M switch.  It produces a Makefile with individual targets for each top-level .scad script, with paths relative to the current working directory.  So, make sure you run it in the directory where you want the Makefile to reside.
 
+And, I added a "manual" mode, to help with tracking the use of .stl files in the printer "slice" files.  Say, you have a directory for all the .stl files that contain a printable part, and a directory for the .chitubox files, one for each .stl file where the supports are added.  If you run "scadmake -a (stldirectory/*.stl) (chituboxdirectory/*.chitubox)", scadmake will collect all the .stl files in the stldirectory, find their .chitubox counterparts in the chituboxdirectory, and report a list of the whole thing, one line for each file pair, showing which is the newest by highlighting the name.  Probably has a customer base of one, me...  :D
+
 ## Building
 
 scadmake is a C++ program, requires at least C++17 for the filesystem library.  It has no other dependencies; monitor mode is just an infinite loop, so there's no OS-specific file watcher.
